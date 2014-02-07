@@ -26,6 +26,7 @@ import org.openqa.grid.common.JSONConfigurationUtils;
 import org.openqa.grid.common.RegistrationRequest;
 import org.openqa.grid.common.exception.GridConfigurationException;
 import org.openqa.grid.internal.listeners.Prioritizer;
+import org.openqa.selenium.server.cli.RemoteControlLauncher;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
@@ -212,11 +213,21 @@ public class GridHubConfiguration {
       isDebug = true;
     }
 
+    loadSystemPropertiesFromCommandLine(helper.getKeys());
   }
 
-  /**
-   * @param resource /grid_configuration.yml for instance
-   */
+  // In case a user passes in some JVM options, set them into System.setProperty
+  protected void loadSystemPropertiesFromCommandLine(List<String> args) {
+    for (String argumentKey : args){
+      if(argumentKey.startsWith("-D")){
+        RemoteControlLauncher.setSystemProperty(argumentKey);
+      }
+    }
+  }
+
+    /**
+     * @param resource /grid_configuration.yml for instance
+     */
   public void loadFromGridYml(String resource) {
     InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
 
